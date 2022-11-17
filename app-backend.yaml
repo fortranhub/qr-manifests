@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "qr-backend-dev"
+  namespace: "application-dev"
+  labels:
+    application: "backend"
+    stage: "dev"
+spec:
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      maxSurge: "25%"
+      maxUnavailable: "25%"
+  selector:
+    matchLabels:
+      application: "backend"
+      stage: "dev"
+  template:
+    metadata:
+      labels:
+        application: "backend"
+        stage: "dev"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: backend-dev
+          image: hakobmkoyan771/backend-qr:0.1.0-rc
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - name: "backend-port"
+              containerPort: 3000
+              protocol: "TCP"
+          env:
+            - name: "DATABASE_HOST"
+              valueFrom:
+                configMapKeyRef:
+                  key: "DATABASE_HOST"
+                  name: "db-dev-cm"
+            - name: "DATABASE_PORT"
+              valueFrom:
+                configMapKeyRef:
+                  key: "DATABASE_PORT"
+                  name: "db-dev-cm"
+            - name: "DATABASE_NAME"
+              valueFrom:
+                configMapKeyRef:
+                  key: "DATABASE_NAME"
+                  name: "db-dev-cm"
+            - name: "APP_URL"
+              valueFrom:
+                configMapKeyRef:
+                  key: "APP_URL"
+                  name: "frontend-app-dev-cm"
+            - name: "API_URL"
+              valueFrom:
+                configMapKeyRef:
+                  key: "API_URL"
+                  name: "backend-app-dev-cm"
